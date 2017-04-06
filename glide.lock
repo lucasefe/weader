@@ -1,6 +1,14 @@
-hash: 95f639239463a8485a6831ff88cc2c746142c8f76e8bd31f19d49bd8a48f471d
-updated: 2017-04-06T12:52:22.819449932-03:00
+hash: 0218cc6b01da1d4cf4a75c5f9486a88d51614e6e121d0f7c405f2b215328c6be
+updated: 2017-04-06T14:40:52.636380121-03:00
 imports:
 - name: github.com/julienschmidt/httprouter
   version: 8a45e95fc75cb77048068a62daed98cc22fdac7c
+- name: github.com/moul/http2curl
+  version: 4e24498b31dba4683efb9d35c1c8a91e2eda28c8
+- name: github.com/parnurzeal/gorequest
+  version: f441e24175ffc865a6354b65375e537201c51382
+- name: golang.org/x/net
+  version: 236b8f043b920452504e263bc21d354427127473
+  subpackages:
+  - publicsuffix
 testImports: []
