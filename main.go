@@ -11,11 +11,11 @@ import (
 	"github.com/lucasefe/weader/weather"
 )
 
-// TODO: Handle errors from the API
 // TODO: Handle multiple errors returned from gorequest
 // TODO: Add http caching layer
 // TODO: Add weather cache.
 // TODO: Research if weather api supports batch
+// TODO: Add middleware to add X-Runtime top headers
 
 // Result represents the server unique result, for now.
 type Result struct {
@@ -26,7 +26,6 @@ type Result struct {
 }
 
 func main() {
-
 	router := httprouter.New()
 	router.GET("/:username", byUsername)
 
@@ -37,37 +36,32 @@ func main() {
 func byUsername(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	username := ps.ByName("username")
 
-	user := gh.FetchUser(username)
-	repos := gh.FetchRepos(user.Login)
-
-	temperatures := []int{}
-	for _, repo := range repos {
-		temperature, err := weather.FetchTemperature(user.Location, repo.CreatedAt)
-
-		if err != nil {
-			log.Printf("error: %+v", err)
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		temperatures = append(temperatures, temperature)
+	user, err := gh.FetchUser(username)
+	if err != nil {
+		log.Printf("error: %+v", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
-	var sum int
-	for _, t := range temperatures {
-		sum += t
+	repos, err := gh.FetchRepos(user.Login)
+	if err != nil {
+		log.Printf("error: %+v", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
-	var avgTemperature int
-	if len(temperatures) > 0 {
-		avgTemperature = sum / len(temperatures)
+	temperatures, err := fetchTemperatures(user, repos)
+	if err != nil {
+		log.Printf("error: %+v", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
 	res := Result{
-		AvgTemperature: avgTemperature,
 		Username:       user.Login,
 		Location:       user.Location,
 		ReposCount:     len(repos),
+		AvgTemperature: avg(temperatures),
 	}
 
 	fmt.Fprint(w, render(res))
@@ -78,4 +72,35 @@ func render(res Result) string {
 	s := string(b)
 
 	return s
+}
+
+func avg(numbers []int) int {
+	count := len(numbers)
+
+	if count == 0 {
+		return 0
+	}
+
+	var sum int
+	for _, t := range numbers {
+		sum += t
+	}
+
+	return sum / count
+}
+
+func fetchTemperatures(user *gh.User, repos []*gh.Repository) ([]int, error) {
+	temperatures := []int{}
+
+	for _, repo := range repos {
+		temperature, err := weather.FetchTemperature(user.Location, repo.CreatedAt)
+
+		if err != nil {
+			return nil, err
+		}
+
+		temperatures = append(temperatures, temperature)
+	}
+
+	return temperatures, nil
 }

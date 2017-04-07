@@ -22,19 +22,27 @@ type Repository struct {
 }
 
 // FetchUser fetches user data from github
-func FetchUser(username string) *User {
+func FetchUser(username string) (*User, error) {
 	user := &User{}
-	url := fmt.Sprintf("https://api.github.com/users/%s", username)
-	gorequest.New().Get(url).EndStruct(&user)
 
-	return user
+	url := fmt.Sprintf("https://api.github.com/users/%s", username)
+	_, _, errors := gorequest.New().Get(url).EndStruct(&user)
+	if len(errors) > 0 {
+		return nil, errors[0]
+	}
+
+	return user, nil
 }
 
 // FetchRepos fetches repositories data for a give username from github
-func FetchRepos(username string) []Repository {
-	repos := []Repository{}
-	url := fmt.Sprintf("https://api.github.com/users/%s/repos", username)
-	gorequest.New().Get(url).EndStruct(&repos)
+func FetchRepos(username string) ([]*Repository, error) {
+	repos := []*Repository{}
 
-	return repos
+	url := fmt.Sprintf("https://api.github.com/users/%s/repos", username)
+	_, _, errors := gorequest.New().Get(url).EndStruct(&repos)
+	if len(errors) > 0 {
+		return nil, errors[0]
+	}
+
+	return repos, nil
 }
