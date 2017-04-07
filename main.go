@@ -17,8 +17,8 @@ import (
 // TODO: Add http caching layer
 // TODO: Add weather cache.
 // TODO: Research if weather api supports batch
-// TODO: Add middleware to add X-Runtime top headers
 // TODO: Error handling at http level is very repetitive. DRY it up.
+// TODO: Paginate the repos.
 
 // Result represents the server unique result, for now.
 type Result struct {
