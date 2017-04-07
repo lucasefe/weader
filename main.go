@@ -5,17 +5,19 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
+	"time"
 
 	"github.com/julienschmidt/httprouter"
 	"github.com/lucasefe/weader/gh"
-	"github.com/lucasefe/weader/util"
+	util "github.com/lucasefe/weader/util"
 	"github.com/lucasefe/weader/weather"
 )
 
 // TODO: Tests, please.
 // TODO: Handle multiple errors returned from gorequest
 // TODO: Add http caching layer
-// TODO: Add weather cache.
+// TODO: Add better weather cache.
 // TODO: Research if weather api supports batch
 // TODO: Error handling at http level is very repetitive. DRY it up.
 // TODO: Paginate the repos.
@@ -31,13 +33,19 @@ type Result struct {
 var cache *util.Cache
 
 func main() {
+	c, err := util.NewCache("weather")
+
+	if err != nil {
+		log.Printf("Error while creating cache: %+v\n", err)
+	}
+
+	cache = c
+
 	router := httprouter.New()
 	router.GET("/:username", getByUsername)
 
-	cache = util.NewCache()
-
-	fmt.Println("Listening on port 8080")
-	http.ListenAndServe(":8080", util.NewTimer(router))
+	fmt.Println("Listening on port 8081")
+	http.ListenAndServe(":8081", util.NewTimer(router))
 }
 
 func getByUsername(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -102,8 +110,7 @@ func fetchTemperatures(user *gh.User, repos []*gh.Repository) ([]int, error) {
 	temperatures := []int{}
 
 	for _, repo := range repos {
-		key := fmt.Sprintf("%s-%s", user.Location, repo.CreatedAt)
-
+		key := tempCacheKey(user.Location, repo.CreatedAt)
 		value, err := cache.Fetch(key, func() (interface{}, error) {
 			v, e := weather.FetchTemperature(user.Location, repo.CreatedAt)
 			return v, e
@@ -117,4 +124,14 @@ func fetchTemperatures(user *gh.User, repos []*gh.Repository) ([]int, error) {
 	}
 
 	return temperatures, nil
+}
+
+func tempCacheKey(loc string, date time.Time) string {
+	// TODO: Terrible. Regex?
+	l := strings.ToLower(loc)
+	l = strings.Replace(l, ",", "", -1)
+	l = strings.Replace(l, " ", "", -1)
+	d := date.Format("2012-11-01")
+
+	return fmt.Sprintf("%s-%s", l, d)
 }

@@ -1,8 +1,14 @@
-hash: 0218cc6b01da1d4cf4a75c5f9486a88d51614e6e121d0f7c405f2b215328c6be
-updated: 2017-04-06T14:40:52.636380121-03:00
+hash: 10ff72fb981fd40ffaf88d1bbc6ddf025119d683898da9df2e007addf83711b9
+updated: 2017-04-07T19:41:55.108937958-03:00
 imports:
 - name: github.com/julienschmidt/httprouter
   version: 8a45e95fc75cb77048068a62daed98cc22fdac7c
+- name: github.com/lucasefe/weader
+  version: 8853e23f393d97ef656b6f93b40587abdad68079
+  subpackages:
+  - gh
+  - util
+  - weather
 - name: github.com/moul/http2curl
   version: 4e24498b31dba4683efb9d35c1c8a91e2eda28c8
 - name: github.com/parnurzeal/gorequest
@@ -11,4 +17,6 @@ imports:
   version: 236b8f043b920452504e263bc21d354427127473
   subpackages:
   - publicsuffix
+- name: gopkg.in/yaml.v2
+  version: a3f3340b5840cee44f372bddb5880fcbc419b46a
 testImports: []

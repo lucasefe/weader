@@ -2,3 +2,4 @@ package: .
 import:
 - package: github.com/julienschmidt/httprouter
 - package: github.com/parnurzeal/gorequest
+- package: gopkg.in/yaml.v2
