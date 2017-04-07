@@ -2,13 +2,13 @@ package util
 
 // Cache is the data structure where the data is stored
 type Cache struct {
-	Data map[string]interface{}
+	data map[string]interface{}
 }
 
 // NewCache constructs a new Cache
 func NewCache() *Cache {
 	cache := &Cache{}
-	cache.Data = make(map[string]interface{})
+	cache.data = make(map[string]interface{})
 
 	return cache
 }
@@ -18,7 +18,7 @@ type FetcherFunc func() (interface{}, error)
 
 // Fetch retrieves the value from the cache, if available, or executes the fetcher to get the value.
 func (c *Cache) Fetch(key string, fetcher FetcherFunc) (interface{}, error) {
-	if value, ok := c.Data[key]; ok {
+	if value, ok := c.data[key]; ok {
 		return value, nil
 	}
 
@@ -27,7 +27,21 @@ func (c *Cache) Fetch(key string, fetcher FetcherFunc) (interface{}, error) {
 		return nil, err
 	}
 
-	c.Data[key] = value
+	c.Set(key, value)
 
 	return value, nil
+}
+
+// Get retrieves the value stored by the key from the cache
+func (c *Cache) Get(key string) interface{} {
+	if value, ok := c.data[key]; ok {
+		return value
+	}
+
+	return nil
+}
+
+// Set stores the value by the key on the cache
+func (c *Cache) Set(key string, value interface{}) {
+	c.data[key] = value
 }
