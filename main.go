@@ -28,9 +28,13 @@ type Result struct {
 	Username       string `json:"username"`
 }
 
+var cache *util.Cache
+
 func main() {
 	router := httprouter.New()
 	router.GET("/:username", getByUsername)
+
+	cache = util.NewCache()
 
 	fmt.Println("Listening on port 8080")
 	http.ListenAndServe(":8080", util.NewTimer(router))
@@ -98,13 +102,18 @@ func fetchTemperatures(user *gh.User, repos []*gh.Repository) ([]int, error) {
 	temperatures := []int{}
 
 	for _, repo := range repos {
-		temperature, err := weather.FetchTemperature(user.Location, repo.CreatedAt)
+		key := fmt.Sprintf("%s-%s", user.Location, repo.CreatedAt)
+
+		value, err := cache.Fetch(key, func() (interface{}, error) {
+			v, e := weather.FetchTemperature(user.Location, repo.CreatedAt)
+			return v, e
+		})
 
 		if err != nil {
 			return nil, err
 		}
 
-		temperatures = append(temperatures, temperature)
+		temperatures = append(temperatures, value.(int))
 	}
 
 	return temperatures, nil
