@@ -11,11 +11,13 @@ import (
 	"github.com/lucasefe/weader/weather"
 )
 
+// TODO: Tests, please.
 // TODO: Handle multiple errors returned from gorequest
 // TODO: Add http caching layer
 // TODO: Add weather cache.
 // TODO: Research if weather api supports batch
 // TODO: Add middleware to add X-Runtime top headers
+// TODO: Error handling at http level is very repetitive. DRY it up.
 
 // Result represents the server unique result, for now.
 type Result struct {
