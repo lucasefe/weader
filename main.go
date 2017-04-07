@@ -8,6 +8,7 @@ import (
 
 	"github.com/julienschmidt/httprouter"
 	"github.com/lucasefe/weader/gh"
+	"github.com/lucasefe/weader/util"
 	"github.com/lucasefe/weader/weather"
 )
 
@@ -29,13 +30,15 @@ type Result struct {
 
 func main() {
 	router := httprouter.New()
-	router.GET("/:username", byUsername)
+	router.GET("/:username", getByUsername)
 
 	fmt.Println("Listening on port 8080")
-	http.ListenAndServe(":8080", router)
+	http.ListenAndServe(":8080", util.NewTimer(router))
 }
 
-func byUsername(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func getByUsername(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	w.Header().Set("Content-Type", "application/json")
+
 	username := ps.ByName("username")
 
 	user, err := gh.FetchUser(username)
