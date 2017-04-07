@@ -17,7 +17,7 @@ WEATHER_API_KEY=<<KEY>> go run main.go
 Using [httpie](https://github.com/jakubroztocil/httpie).
 
 ```
-http  localhost:8080/lucasefe
+http  localhost:8081/lucasefe
 ```
 
 
